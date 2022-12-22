@@ -31,3 +31,13 @@ func Contains[T comparable](s []T, e T) bool {
 	}
 	return false
 }
+
+func GetPtr[T string | int](value T) *T {
+	return &value
+}
+
+func CloneMap[T comparable, S any](dst map[T]S, src map[T]S) {
+	for t, s := range src {
+		dst[t] = s
+	}
+}
