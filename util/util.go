@@ -41,3 +41,11 @@ func CloneMap[T comparable, S any](dst map[T]S, src map[T]S) {
 		dst[t] = s
 	}
 }
+
+func Reverse[T any](numbers []T) []T {
+	newNumbers := make([]T, 0, len(numbers))
+	for i := len(numbers) - 1; i >= 0; i-- {
+		newNumbers = append(newNumbers, numbers[i])
+	}
+	return newNumbers
+}
