@@ -80,6 +80,65 @@ func part1Fn(trees [][]int) {
 	log.Println("part1 ", total)
 }
 
+func getScenicScore(trees [][]int, r int, c int) int {
+	rowLen := len(trees)
+	colLen := len(trees[r])
+	val := trees[r][c]
+
+	//res := 0
+	top, bot, left, right := 0, 0, 0, 0
+	for i := r - 1; i >= 0; i-- {
+		top++
+		temp := trees[i][c]
+		if temp >= val {
+			break
+		}
+	}
+
+	// bottom
+	for i := r + 1; i < rowLen; i++ {
+		bot++
+		temp := trees[i][c]
+		if temp >= val {
+			break
+		}
+	}
+
+	// left
+	for i := c - 1; i >= 0; i-- {
+		left++
+		temp := trees[r][i]
+		if temp >= val {
+			break
+		}
+	}
+
+	// right
+	for i := c + 1; i < colLen; i++ {
+		right++
+		temp := trees[r][i]
+		if temp >= val {
+			break
+		}
+	}
+	return top * bot * left * right
+}
+
+func part2Fn(trees [][]int) {
+	highest := -1
+	for i := 1; i < len(trees)-1; i++ {
+		for j := 1; j < len(trees[i])-1; j++ {
+			score := getScenicScore(trees, i, j)
+			if highest == -1 || highest < score {
+				highest = score
+			}
+
+			log.Println("i,j", i, j, score)
+		}
+	}
+	log.Println("part2 ", highest)
+}
+
 func getValue(file string, part2 bool) {
 	results, err := util.GetFileContentsSplit(file)
 	util.PanicOnError(err)
@@ -94,4 +153,5 @@ func getValue(file string, part2 bool) {
 	}
 
 	part1Fn(trees)
+	part2Fn(trees)
 }
