@@ -156,15 +156,6 @@ func part1Fn(myMap *Map) {
 
 	calcFromMap(myMap, startR, startC)
 
-	//history := make([]string, 0)
-	//myQueue := queue.New()
-	//keyNew := makeKey(startR, startC)
-	//myMap.distances[keyNew] = 0
-	//traverse(myQueue, myMap, history, startR, startC)
-	//for !myQueue.Empty() {
-	//	myQueue.Pop().(func())()
-	//}
-	//printMap(myMap)
 	log.Println(len(myMap.distances), rowLen*colLen)
 	log.Println("part1", myMap.smallest)
 }
