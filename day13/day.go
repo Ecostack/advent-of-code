@@ -14,7 +14,6 @@ type Line any
 
 type Lines []Line
 
-// implement the functions from the sort.Interface
 func (d Lines) Len() int {
 	return len(d)
 }
