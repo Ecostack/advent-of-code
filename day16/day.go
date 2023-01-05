@@ -194,6 +194,36 @@ func part1Fn(system *System) {
 	log.Println("v, s", valve, score)
 }
 
+func combinationHelper(combinations [][]int, data []int, start, end, index int) [][]int {
+	if index == len(data) {
+		clone := make([]int, len(data))
+		for i, datum := range data {
+			clone[i] = datum
+		}
+		return append(combinations, clone)
+	} else if start <= end {
+		data[index] = start
+		temp := combinationHelper(combinations, data, start+1, end, index+1)
+		return combinationHelper(temp, data, start+1, end, index)
+	}
+	return combinations
+}
+
+func combinations(n, r int) [][]int {
+	return combinationHelper(make([][]int, 0), make([]int, r), 0, n-1, 0)
+}
+
+func getPermutations[T any](val []T) [][]int {
+	result := make([][]int, 0)
+	for i := 1; i < len(val); i++ {
+		temp := combinations(len(val), i)
+		for _, ints := range temp {
+			result = append(result, ints)
+		}
+	}
+	return result
+}
+
 func part2Fn(system *System) {
 	matrix := buildMatrix(system.valves)
 	dp := util.FloydWarshall(matrix)
@@ -202,8 +232,28 @@ func part2Fn(system *System) {
 
 	currentValve := system.valveMap["AA"]
 
-	valve, score := nextOptimalValve(system, currentValve, 26, system.valveWithFlow)
-	log.Println("v, s", valve, score)
+	combinations := getPermutations(system.valveWithFlow)
+	log.Println("comb", combinations)
+	highest := 0
+	for _, comb := range combinations {
+		temp := make([]*Valve, 0)
+		temp2 := make([]*Valve, 0)
+		for i, valve := range system.valveWithFlow {
+			if util.Contains(comb, i) {
+				temp = append(temp, valve)
+			} else {
+				temp2 = append(temp2, valve)
+			}
+		}
+		_, score1 := nextOptimalValve(system, currentValve, 26, temp)
+		_, score2 := nextOptimalValve(system, currentValve, 26, temp2)
+		scoreComb := score1 + score2
+		if highest < scoreComb {
+			highest = scoreComb
+		}
+	}
+
+	log.Println("part2", highest)
 }
 
 func getValue(file string, example bool, part2 bool) {
@@ -217,7 +267,6 @@ func getValue(file string, example bool, part2 bool) {
 	for _, result := range results {
 		parseLine(system, result)
 	}
-	part1Fn(system)
 
 	if part2 {
 		part2Fn(system)
