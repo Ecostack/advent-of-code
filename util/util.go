@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"strings"
 )
@@ -48,4 +49,29 @@ func Reverse[T any](numbers []T) []T {
 		newNumbers = append(newNumbers, numbers[i])
 	}
 	return newNumbers
+}
+
+func FloydWarshall(matrix [][]int) [][]int {
+	n := len(matrix)
+	dp := make([][]int, n)
+	for i := 0; i < n; i++ {
+		dp[i] = make([]int, n)
+		for j := 0; j < n; j++ {
+			dp[i][j] = matrix[i][j]
+		}
+	}
+
+	for k := 0; k < n; k++ {
+		for i := 0; i < n; i++ {
+			for j := 0; j < n; j++ {
+				if dp[i][k] == math.MaxInt || dp[k][j] == math.MaxInt {
+					continue
+				}
+				if dp[i][j] > dp[i][k]+dp[k][j] {
+					dp[i][j] = dp[i][k] + dp[k][j]
+				}
+			}
+		}
+	}
+	return dp
 }
