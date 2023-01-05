@@ -149,52 +149,28 @@ func buildMatrix(valves []*Valve) [][]int {
 	return matrix
 }
 
-func copyTree(tree *Tree) *Tree {
-	newTree := &Tree{
-		parent:      tree,
-		minute:      tree.minute,
-		valve:       tree.valve,
-		open:        false,
-		totalFlow:   tree.totalFlow,
-		accumulated: tree.accumulated,
-		actionLog:   make([]string, 0),
-		opened:      make([]string, 0),
-		visited:     make(map[string]int),
-	}
-	for _, s := range tree.actionLog {
-		newTree.actionLog = append(newTree.actionLog, s)
-	}
-	for s, b := range tree.visited {
-		newTree.visited[s] = b
-	}
-	for _, b := range tree.opened {
-		newTree.opened = append(newTree.opened, b)
-	}
-	return newTree
-}
-
-func nextOptimalValve(system *System, valve *Valve, minute int, contesters []*Valve) (*Valve, int) {
-	//timeLeft := MINUTES - minute
+func nextOptimalValve(system *System, valve *Valve, minutesLeft int, contesters []*Valve) (*Valve, int) {
 	var optimalValve *Valve = nil
+
 	value := 0
 	for _, v := range contesters {
 		if v != valve {
 			distance := system.distancePath[valve.index][v.index]
-			newTime := minute + distance + 1
-			if newTime >= MINUTES {
+			newTime := minutesLeft - distance - 1
+			if newTime <= 0 {
 				continue
 			}
 			score := newTime * v.flow
 
 			newConstesters := make([]*Valve, 0)
 			for _, contester := range contesters {
-				if contester != v {
+				if contester != v && contester != valve {
 					newConstesters = append(newConstesters, contester)
 				}
 			}
 
-			_, value := nextOptimalValve(system, v, newTime, newConstesters)
-			score += value
+			_, temp := nextOptimalValve(system, v, newTime, newConstesters)
+			score += temp
 
 			if score > value {
 				optimalValve = v
@@ -205,83 +181,28 @@ func nextOptimalValve(system *System, valve *Valve, minute int, contesters []*Va
 	return optimalValve, value
 }
 
-func buildTree(system *System, tree *Tree) {
-	valve := tree.valve
-
-	isOpen := util.Contains(tree.opened, valve.name)
-
-	if !util.Contains(tree.opened, tree.valve.name) && !isOpen && util.Contains(system.valveWithFlow, valve) {
-		newTree := copyTree(tree)
-		newTree.minute++
-		newTree.totalFlow += tree.accumulated
-		if newTree.checkMinutes(system) {
-			return
-		}
-		newTree.accumulated += valve.flow
-		newTree.open = true
-		newTree.opened = append(newTree.opened, valve.name)
-		newTree.actionLog = append(newTree.actionLog, valve.name+"_OPEN")
-		buildTree(system, newTree)
-	}
-
-	foundUnexplored := false
-	for _, v := range system.valveWithFlow {
-		if !util.Contains(tree.opened, v.name) && v != valve {
-			foundUnexplored = true
-			newTree := copyTree(tree)
-			newTree.valve = v
-			visitString := valve.name + " -> " + v.name
-			newTree.actionLog = append(newTree.actionLog, visitString)
-			distance := system.distancePath[valve.index][v.index]
-			for i := 0; i < distance; i++ {
-				newTree.minute++
-				newTree.totalFlow += newTree.accumulated
-				newTree.actionLog = append(newTree.actionLog, visitString)
-				if newTree.checkMinutes(system) {
-					return
-				}
-			}
-			buildTree(system, newTree)
-		}
-	}
-
-	if !foundUnexplored {
-		newTree := copyTree(tree)
-		visitString := valve.name + " -> " + valve.name
-
-		for {
-			newTree.actionLog = append(newTree.actionLog, visitString)
-			newTree.minute++
-			newTree.totalFlow += newTree.accumulated
-			if newTree.checkMinutes(system) {
-				return
-			}
-		}
-	}
-}
-
 func part1Fn(system *System) {
 	matrix := buildMatrix(system.valves)
-	//printMatrix(matrix)
 	dp := util.FloydWarshall(matrix)
 	printMatrix(dp)
 
 	system.distancePath = dp
 
 	currentValve := system.valveMap["AA"]
-	//tree := &Tree{
-	//	minute:      0,
-	//	valve:       currentValve,
-	//	open:        false,
-	//	totalFlow:   0,
-	//	accumulated: 0,
-	//	opened:      make([]string, 0),
-	//	visited:     make(map[string]int),
-	//	actionLog:   make([]string, 0),
-	//}
-	//buildTree(system, tree)
 
-	valve, score := nextOptimalValve(system, currentValve, 0, system.valveWithFlow)
+	valve, score := nextOptimalValve(system, currentValve, 30, system.valveWithFlow)
+	log.Println("v, s", valve, score)
+}
+
+func part2Fn(system *System) {
+	matrix := buildMatrix(system.valves)
+	dp := util.FloydWarshall(matrix)
+	printMatrix(dp)
+	system.distancePath = dp
+
+	currentValve := system.valveMap["AA"]
+
+	valve, score := nextOptimalValve(system, currentValve, 26, system.valveWithFlow)
 	log.Println("v, s", valve, score)
 }
 
@@ -297,4 +218,10 @@ func getValue(file string, example bool, part2 bool) {
 		parseLine(system, result)
 	}
 	part1Fn(system)
+
+	if part2 {
+		part2Fn(system)
+	} else {
+		part1Fn(system)
+	}
 }
