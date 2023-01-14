@@ -43,12 +43,20 @@ func CloneMap[T comparable, S any](dst map[T]S, src map[T]S) {
 	}
 }
 
-func Reverse[T any](numbers []T) []T {
-	newNumbers := make([]T, 0, len(numbers))
-	for i := len(numbers) - 1; i >= 0; i-- {
-		newNumbers = append(newNumbers, numbers[i])
+func CloneArray[T comparable](src []T) []T {
+	res := make([]T, len(src))
+	for t, s := range src {
+		res[t] = s
 	}
-	return newNumbers
+	return res
+}
+
+func Reverse[T any](val []T) []T {
+	newVal := make([]T, 0, len(val))
+	for i := len(val) - 1; i >= 0; i-- {
+		newVal = append(newVal, val[i])
+	}
+	return newVal
 }
 
 func FloydWarshall(matrix [][]int) [][]int {
