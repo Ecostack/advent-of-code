@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -57,6 +58,11 @@ func Reverse[T any](val []T) []T {
 		newVal = append(newVal, val[i])
 	}
 	return newVal
+}
+
+func ParseInt(str string) int {
+	val, _ := strconv.Atoi(str)
+	return val
 }
 
 func FloydWarshall(matrix [][]int) [][]int {
