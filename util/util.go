@@ -1,6 +1,7 @@
 package util
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"os"
@@ -88,4 +89,13 @@ func FloydWarshall(matrix [][]int) [][]int {
 		}
 	}
 	return dp
+}
+
+func StructToJSon(anyStruct any) string {
+	b, err := json.Marshal(anyStruct)
+	if err != nil {
+		fmt.Println(err)
+		return ""
+	}
+	return string(b)
 }
